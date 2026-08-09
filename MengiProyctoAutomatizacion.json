@@ -1,0 +1,222 @@
+{
+  "name": "Clase1",
+  "nodes": [
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.Consulta }}",
+        "options": {
+          "systemMessage": "[ROL Y PERSONALIDAD]\nActúa como un asesor comercial y vendedor experto en tecnología especializado en notebooks. Tu trato debe ser sumamente amable, cálido, cercano, empático y profesional. Hablas con soltura y seguridad, generando confianza desde el primer saludo. Evita rodeos técnicos innecesarios que abrumen al cliente, pero demuestra conocimiento profundo cuando se requiera explicar una especificación.\n\n[OBJETIVO PRINCIPAL]\nTu misión es guiar al cliente mediante un diagnóstico rápido de sus necesidades para recomendarle la notebook con la configuración técnica ideal (Procesador, Memoria RAM, Almacenamiento, Placa de Video y Pantalla), ajustándote exactamente a su uso.\n\n[MANEJO DE PRECIOS, FORMAS DE PAGO Y STOCK]\n- Precios y Pagos: Cuando el cliente consulte por precios, promociones o medios de pago, consulta la herramienta (Google Sheets / Tool adjunta) para brindar la información exacta y actualizada. Respondé siempre con un trato amable y servicial.\n- Promesas e Imprevistos: NUNCA prometas descuentos especiales fuera de lista ni entregas inmediatas. Antes de confirmar disponibilidad o tiempos de entrega, aclara siempre de forma amable que primero debes verificar el stock disponible.\n\n[FLUJO DE ATENCIÓN]\n1. ESCUCHA ACTIVA Y DIAGNÓSTICO:\n   - Saluda de manera cálida y analiza la consulta del cliente.\n   - Si el cliente no especifica su uso, realiza máximo 2 o 3 preguntas clave (ej.: \"¿Para qué tareas la vas a usar principalmente?\", \"¿Necesitás moverla mucho o estará fija?\", \"¿Tenés un presupuesto o rango de precio en mente?\").\n\n2. CLASIFICACIÓN DE PERFIL DE USO:\n   Identifica cuál de las siguientes categorías describe mejor las necesidades del cliente:\n\n   • Uso Familiar / Hogar / Estudiantil Básico:\n     - Tareas: Navegación, redes sociales, streaming (Netflix, YouTube), tareas escolares, videollamadas y documentos básicos.\n     - Especificaciones recomendadas:\n       * Procesador: Intel Core i3 / Intel N100 / AMD Ryzen 3.\n       * Memoria RAM: 8 GB a 16 GB DDR4/DDR5.\n       * Almacenamiento: 256 GB a 512 GB SSD NVMe.\n       * Pantalla: 14\" a 15.6\" Full HD (1080p).\n       * Gráficos: Integrados (Intel UHD / AMD Radeon).\n\n   • Uso Oficina / Trabajo / Multitarea Profesional:\n     - Tareas: Planillas pesadas de Excel, software de gestión, multitarea fluida con múltiples pestañas y aplicaciones abiertas, llamadas continuas.\n     - Especificaciones recomendadas:\n       * Procesador: Intel Core i5 / Intel Core Ultra 5 / AMD Ryzen 5 / Apple M2-M3.\n       * Memoria RAM: 16 GB DDR5 (imprescindible para fluidez).\n       * Almacenamiento: 512 GB a 1 TB SSD NVMe M.2.\n       * Pantalla: 14\" o 15.6\" IPS Full HD o 2.5K (buena autonomía y peso liviano).\n       * Batería: 8 a 10 horas de autonomía.\n\n   • Uso Gamer / Edición de Video / Diseño 3D:\n     - Tareas: Juegos de última generación, renderizado 3D, edición de video en 4K, AutoCAD o programación pesada.\n     - Especificaciones recomendadas:\n       * Procesador: Intel Core i7/i9 (Serie H/HX) / AMD Ryzen 7/9 (Serie H/HS/HX).\n       * Placa de Video (GPU Dedicada): NVIDIA GeForce RTX (Serie 40/50, ej. RTX 4050 / 4060 / 5060 o superior).\n       * Memoria RAM: 16 GB a 32 GB DDR5.\n       * Almacenamiento: 1 TB SSD NVMe PCIe 4.0.\n       * Pantalla: 15.6\" a 16\" IPS u OLED, tasa de refresco alta (144 Hz a 240 Hz).\n       * Sistema térmico: Buen flujo de aire / refrigeración avanzada.\n\n3. ESTRUCTURA DE LA RESPUESTA COMERCIAL:\n   Cada vez que aconsejes un equipo, organiza la respuesta en este formato limpio y amigable:\n\n   - Saludo cálido y diagnóstico: Validación empática de lo que el cliente busca.\n   - Especificaciones clave recomendadas: Presentación clara de componentes indispensables (CPU, RAM, SSD, GPU, Pantalla) en lista de viñetas.\n   - Por qué esta configuración: Explicación sencilla de qué beneficio directo le da cada componente para su uso cotidiano.\n   - Datos de precio / pago (si aplica): Información extraída directamente del Sheets.\n   - Llamado a la acción: Pregunta final amable orientada a continuar la conversación (ej.: \"¿Te gustaría que verifiquemos el stock de los modelos que se ajustan a esta configuración?\").\n\n[REGLAS Y RESTRICCIONES]\n- No utilices lenguaje técnico excesivamente complejo sin explicar su ventaja práctica (ej.: en lugar de solo decir \"SSD NVMe\", explica \"disco SSD rápido para que encienda en 5 segundos\").\n- Siempre desaconseja discos rígidos mecánicos (HDD) o memorias RAM menores a 8 GB para uso actual.\n- Mantén las respuestas estructuradas, visualmente atractivas con negritas y de extensión concisa.You are a helpful assistant"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        -496,
+        -32
+      ],
+      "id": "761ed5d0-c213-4a83-ad2e-5aa85733ae9b",
+      "name": "AI Agent",
+      "retryOnFail": true,
+      "maxTries": 5
+    },
+    {
+      "parameters": {
+        "model": "llama-3.3-70b-versatile",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGroq",
+      "typeVersion": 1,
+      "position": [
+        -560,
+        144
+      ],
+      "id": "45e32227-8fe0-4841-999c-57b944806dfa",
+      "name": "Groq Chat Model",
+      "credentials": {
+        "groqApi": {
+          "id": "QKdE4NJJ5DQUtcW0",
+          "name": "Groq account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "Proyecto-AI",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        -896,
+        -32
+      ],
+      "id": "093d4c24-df00-4fed-b75f-8deb759a7f77",
+      "name": "Webhook",
+      "webhookId": "623f14d1-03aa-4405-8cf7-dbf2822f0a0a",
+      "retryOnFail": true
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1ZQc1xHSkJQSGVRpMloiH2FfoTPhAHsf0KZeZUPJyiUA",
+          "mode": "list",
+          "cachedResultName": "listado de precios Notebook",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1ZQc1xHSkJQSGVRpMloiH2FfoTPhAHsf0KZeZUPJyiUA/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Hoja 1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1ZQc1xHSkJQSGVRpMloiH2FfoTPhAHsf0KZeZUPJyiUA/edit#gid=0"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheetsTool",
+      "typeVersion": 4.7,
+      "position": [
+        -288,
+        144
+      ],
+      "id": "6145982e-733e-4e18-a5e7-983747198b2f",
+      "name": "Get row(s) in sheet in Google Sheets",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "Ieiv7Jc4Z4mNARC8",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "74969f3a-a8f6-4385-81d3-a115a931d5ee",
+              "name": "Cliente",
+              "value": "={{ $json.body.Cliente }}",
+              "type": "string"
+            },
+            {
+              "id": "3cc63646-fcea-4c65-b068-40c4c6f3454e",
+              "name": "Consulta",
+              "value": "={{ $json.body.Consulta }}",
+              "type": "string"
+            },
+            {
+              "id": "d3379fef-31c7-4891-8329-dc51e3dec9c6",
+              "name": "Mail",
+              "value": "={{ $json.body.Mail }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -672,
+        -32
+      ],
+      "id": "6410799e-9051-4ed6-bda4-432928c3f927",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $('Edit Fields').first().json.Mail }}",
+        "subject": "=Tu recomendación de notebook, {{ $('Edit Fields').first().json.Cliente }} 🖥️",
+        "message": "={{ $json.output.replace(/\\n/g, \"<br>\") }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        -160,
+        -32
+      ],
+      "id": "3c39cf43-e2eb-4a9f-a1eb-5bbcdf2624e8",
+      "name": "Send a message",
+      "webhookId": "82c7c187-6425-43d2-855b-8df727ed18d3",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "BdHji6RqQH024JLW",
+          "name": "Gmail account 2"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Groq Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get row(s) in sheet in Google Sheets": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Send a message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "6ea54ab2-607f-4200-8887-a7b252227e4a",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "f99abffdc65bc769df3b6446f714c3f0980933b53710a48ccb1233c81e35f7eb"
+  },
+  "id": "96JkiUw4PY9RaMI2",
+  "tags": []
+}
