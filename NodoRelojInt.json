@@ -1,0 +1,197 @@
+{
+  "name": "NodoRelojInt",
+  "nodes": [
+    {
+      "parameters": {
+        "workflowInputs": {
+          "values": [
+            {
+              "name": "Cliente"
+            },
+            {
+              "name": "Consulta"
+            },
+            {
+              "name": "Mail"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        688,
+        352
+      ],
+      "id": "a987d909-6881-45ba-8cd1-0c576c4a8e40",
+      "name": "Trigger"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.Consulta }}",
+        "options": {
+          "systemMessage": "[ROL Y PERSONALIDAD]\nActúa como un asesor comercial experto en relojes inteligentes/smartwatches. Trato cálido, cercano y profesional.\n\n[OBJETIVO]\nDiagnosticar la necesidad del cliente (fitness, salud, notificaciones, batería, compatibilidad con su celular) y recomendar el reloj ideal.\n\n[PRECIOS Y STOCK]\nConsulta siempre la herramienta (Google Sheets) para precios y promociones reales. Nunca prometas descuentos fuera de lista; aclara que vas a verificar stock antes de confirmar entrega.\n\n[CLASIFICACIÓN DE PERFIL DE USO]\n• Básico/Notificaciones: pantalla simple, monitor de pasos y frecuencia cardíaca básico, batería 5-7 días, resistencia al agua básica.\n• Fitness/Salud Activa: GPS integrado, monitor de oxígeno en sangre y sueño, múltiples modos deportivos, batería 7-14 días, resistencia 5ATM.\n• Premium/Compatibilidad Total: pantalla AMOLED siempre encendida, ECG, GPS multibanda, llamadas desde el reloj, batería 14+ días, materiales premium (titanio/zafiro).\n\n[COMPATIBILIDAD]\nSiempre preguntá qué celular usa el cliente (iOS o Android) porque algunos modelos tienen funciones limitadas fuera de su ecosistema.\n\n[ESTRUCTURA DE RESPUESTA]\nSaludo y diagnóstico → Especificaciones recomendadas (viñetas) → Por qué esta configuración beneficia su rutina → Precio/pago (del Sheets) → Llamado a la acción.\n\n[RESTRICCIONES]\nAclará siempre que las mediciones de salud (oxígeno, ECG) son referenciales y no reemplazan a un profesional médico."
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        928,
+        352
+      ],
+      "id": "451e2a1b-6d8e-4bf7-bb30-0545d3d99eed",
+      "name": "Agente Relojes",
+      "retryOnFail": true,
+      "maxTries": 5,
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "model": "llama-3.3-70b-versatile",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGroq",
+      "typeVersion": 1,
+      "position": [
+        880,
+        560
+      ],
+      "id": "83c88b8f-1595-4b4c-8a42-9ee3d53c267e",
+      "name": "Groq Chat Model",
+      "credentials": {
+        "groqApi": {
+          "id": "QKdE4NJJ5DQUtcW0",
+          "name": "Groq account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1ZQc1xHSkJQSGVRpMloiH2FfoTPhAHsf0KZeZUPJyiUA",
+          "mode": "list",
+          "cachedResultName": "listado de precios Notebook",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1ZQc1xHSkJQSGVRpMloiH2FfoTPhAHsf0KZeZUPJyiUA/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 2026079304,
+          "mode": "list",
+          "cachedResultName": "RelojInteligente",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1ZQc1xHSkJQSGVRpMloiH2FfoTPhAHsf0KZeZUPJyiUA/edit#gid=2026079304"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheetsTool",
+      "typeVersion": 4.7,
+      "position": [
+        1088,
+        560
+      ],
+      "id": "3688752d-3370-42fb-ad65-c72d725eda11",
+      "name": "Catálogo Relojes",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "Ieiv7Jc4Z4mNARC8",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "s1",
+              "name": "status",
+              "value": "={{ $json.error ? \"error\" : \"success\" }}",
+              "type": "string"
+            },
+            {
+              "id": "s2",
+              "name": "data",
+              "value": "={{ $json.error ? { \"mensaje\": \"No pudimos procesar tu consulta en este momento. Un asesor humano te contactará a la brevedad.\", \"categoria\": \"relojes\" } : { \"categoria\": \"relojes\", \"cliente\": $('Trigger').first().json.Cliente, \"mail\": $('Trigger').first().json.Mail, \"mensaje\": $json.output } }}",
+              "type": "object"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1216,
+        352
+      ],
+      "id": "9f0b9890-fce4-43b3-be97-de404d89dacd",
+      "name": "Formatear Contrato de Salida"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Trigger": {
+      "main": [
+        [
+          {
+            "node": "Agente Relojes",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Groq Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Agente Relojes",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Catálogo Relojes": {
+      "ai_tool": [
+        [
+          {
+            "node": "Agente Relojes",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Agente Relojes": {
+      "main": [
+        [
+          {
+            "node": "Formatear Contrato de Salida",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "afdbf332-ddd4-4d73-a97d-2886cbcc4b12",
+  "meta": {
+    "instanceId": "f99abffdc65bc769df3b6446f714c3f0980933b53710a48ccb1233c81e35f7eb"
+  },
+  "id": "eaUNyr9rsqDPOmWN",
+  "tags": [
+    {
+      "updatedAt": "2026-08-11T13:38:29.470Z",
+      "createdAt": "2026-08-11T13:38:29.470Z",
+      "id": "B9N26DYzj6Q3UfhN",
+      "name": "CursoIAavanzado"
+    }
+  ]
+}

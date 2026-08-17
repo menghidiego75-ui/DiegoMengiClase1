@@ -1,0 +1,860 @@
+{
+  "name": "NodoPrincipalProyecto",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "ventas-tecnologia",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        -1488,
+        160
+      ],
+      "id": "750f09ce-fa3c-48e6-a235-ccec72d48aff",
+      "name": "Webhook",
+      "webhookId": "auto-generado-al-importar",
+      "retryOnFail": true
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "a1",
+              "name": "Cliente",
+              "value": "={{ $json.body.Cliente }}",
+              "type": "string"
+            },
+            {
+              "id": "a2",
+              "name": "Consulta",
+              "value": "={{ $json.body.Consulta }}",
+              "type": "string"
+            },
+            {
+              "id": "a3",
+              "name": "Mail",
+              "value": "={{ $json.body.Mail }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -1296,
+        160
+      ],
+      "id": "c2438ef6-e396-48ab-98db-ec602ce4ce34",
+      "name": "Normalizar Datos"
+    },
+    {
+      "parameters": {
+        "model": "llama-3.3-70b-versatile",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGroq",
+      "typeVersion": 1,
+      "position": [
+        -1168,
+        384
+      ],
+      "id": "75a76c07-a583-4eec-b5ca-04eaf3cd0004",
+      "name": "Groq Chat Model Router",
+      "credentials": {
+        "groqApi": {
+          "id": "QKdE4NJJ5DQUtcW0",
+          "name": "Groq account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.Consulta }}",
+        "options": {
+          "systemMessage": "Eres un clasificador de intenciones para una tienda de tecnología. Tu ÚNICA tarea es leer la consulta del cliente y responder EXCLUSIVAMENTE con UNA palabra, sin explicaciones, sin puntuación, sin saludos.\n\nLas únicas respuestas válidas son:\n- NOTEBOOKS (si pregunta por notebooks, laptops, computadoras portátiles)\n- CELULARES (si pregunta por celulares, smartphones, teléfonos)\n- RELOJES (si pregunta por relojes inteligentes, smartwatches, wearables)\n- HUMANO (si la consulta es ambigua, es un reclamo, pide hablar con una persona, o no encaja en ninguna categoría anterior)\n\nResponde SOLO con una de esas 4 palabras exactas. Nada más."
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        -1104,
+        160
+      ],
+      "id": "04dc64f9-8444-4b77-b52e-7fc49de5bc4d",
+      "name": "Clasificador de Intención",
+      "retryOnFail": true,
+      "maxTries": 3
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "b1",
+              "name": "Categoria",
+              "value": "={{ $json.output.trim().toUpperCase() }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -832,
+        160
+      ],
+      "id": "d3201657-fd0d-4860-9914-b5753c9a85c5",
+      "name": "Extraer Categoria"
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 1
+                },
+                "conditions": [
+                  {
+                    "id": "c1",
+                    "leftValue": "={{ $json.Categoria }}",
+                    "rightValue": "NOTEBOOKS",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "NOTEBOOKS"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 1
+                },
+                "conditions": [
+                  {
+                    "id": "c2",
+                    "leftValue": "={{ $json.Categoria }}",
+                    "rightValue": "CELULARES",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "CELULARES"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 1
+                },
+                "conditions": [
+                  {
+                    "id": "c3",
+                    "leftValue": "={{ $json.Categoria }}",
+                    "rightValue": "RELOJES",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "RELOJES"
+            }
+          ]
+        },
+        "options": {
+          "fallbackOutput": "extra"
+        }
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3,
+      "position": [
+        -656,
+        128
+      ],
+      "id": "1631841a-51a9-4830-b302-823722afee7c",
+      "name": "Enrutador"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "n1",
+              "name": "Cliente",
+              "value": "={{ $('Normalizar Datos').first().json.Cliente }}",
+              "type": "string"
+            },
+            {
+              "id": "n2",
+              "name": "Consulta",
+              "value": "={{ $('Normalizar Datos').first().json.Consulta }}",
+              "type": "string"
+            },
+            {
+              "id": "n3",
+              "name": "Mail",
+              "value": "={{ $('Normalizar Datos').first().json.Mail }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -368,
+        -80
+      ],
+      "id": "7456fc2e-4386-4530-b7bf-f63d3759f19c",
+      "name": "Preparar Datos Notebooks"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "c1",
+              "name": "Cliente",
+              "value": "={{ $('Normalizar Datos').first().json.Cliente }}",
+              "type": "string"
+            },
+            {
+              "id": "c2",
+              "name": "Consulta",
+              "value": "={{ $('Normalizar Datos').first().json.Consulta }}",
+              "type": "string"
+            },
+            {
+              "id": "c3",
+              "name": "Mail",
+              "value": "={{ $('Normalizar Datos').first().json.Mail }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -368,
+        128
+      ],
+      "id": "edc997d0-04e1-4ec0-80ca-430350c394e2",
+      "name": "Preparar Datos Celulares"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "r1",
+              "name": "Cliente",
+              "value": "={{ $('Normalizar Datos').first().json.Cliente }}",
+              "type": "string"
+            },
+            {
+              "id": "r2",
+              "name": "Consulta",
+              "value": "={{ $('Normalizar Datos').first().json.Consulta }}",
+              "type": "string"
+            },
+            {
+              "id": "r3",
+              "name": "Mail",
+              "value": "={{ $('Normalizar Datos').first().json.Mail }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -368,
+        336
+      ],
+      "id": "af7ae1b3-33f9-4f1f-a3e9-e2eae89e2ec0",
+      "name": "Preparar Datos Relojes"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "h1",
+              "name": "MensajeSupervisor",
+              "value": "=Consulta sin clasificar. Cliente: {{ $('Normalizar Datos').first().json.Cliente }} ({{ $('Normalizar Datos').first().json.Mail }}). Consulta: {{ $('Normalizar Datos').first().json.Consulta }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -352,
+        576
+      ],
+      "id": "5b9f180e-6dc0-469f-8261-9ea87af9b93c",
+      "name": "Preparar Escalamiento"
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "spUay31ZyjrNchrA",
+          "mode": "list",
+          "cachedResultUrl": "/workflow/spUay31ZyjrNchrA",
+          "cachedResultName": "NodoNotebooks"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Cliente": "={{ $json.Cliente }}",
+            "Consulta": "={{ $json.Consulta }}",
+            "Mail": "={{ $json.Mail }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Cliente",
+              "displayName": "Cliente",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string"
+            },
+            {
+              "id": "Consulta",
+              "displayName": "Consulta",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string"
+            },
+            {
+              "id": "Mail",
+              "displayName": "Mail",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string"
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": true
+        },
+        "options": {
+          "waitForSubWorkflow": true
+        }
+      },
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.2,
+      "position": [
+        -112,
+        -80
+      ],
+      "id": "3c48d21e-9487-4b82-87dd-18ced1222c2e",
+      "name": "Worker Notebooks"
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "fxvNwKfQdWRfDbUS",
+          "mode": "list",
+          "cachedResultUrl": "/workflow/fxvNwKfQdWRfDbUS",
+          "cachedResultName": "NodoCelulares"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Cliente": "={{ $json.Cliente }}",
+            "Consulta": "={{ $json.Consulta }}",
+            "Mail": "={{ $json.Mail }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Cliente",
+              "displayName": "Cliente",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string"
+            },
+            {
+              "id": "Consulta",
+              "displayName": "Consulta",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string"
+            },
+            {
+              "id": "Mail",
+              "displayName": "Mail",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string"
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": true
+        },
+        "options": {
+          "waitForSubWorkflow": true
+        }
+      },
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.2,
+      "position": [
+        -112,
+        128
+      ],
+      "id": "b536b1fa-0b14-4cb7-ad08-a0b8ef3fad8e",
+      "name": "Worker Celulares"
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "eaUNyr9rsqDPOmWN",
+          "mode": "list",
+          "cachedResultUrl": "/workflow/eaUNyr9rsqDPOmWN",
+          "cachedResultName": "NodoRelojInt"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Cliente": "={{ $json.Cliente }}",
+            "Consulta": "={{ $json.Consulta }}",
+            "Mail": "={{ $json.Mail }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Cliente",
+              "displayName": "Cliente",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string"
+            },
+            {
+              "id": "Consulta",
+              "displayName": "Consulta",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string"
+            },
+            {
+              "id": "Mail",
+              "displayName": "Mail",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string"
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": true
+        },
+        "options": {
+          "waitForSubWorkflow": true
+        }
+      },
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.2,
+      "position": [
+        -112,
+        336
+      ],
+      "id": "8c10bac9-faf5-44af-a0bb-4d3bb8db1f10",
+      "name": "Worker Relojes"
+    },
+    {
+      "parameters": {
+        "sendTo": "TU_MAIL_DE_SUPERVISOR@gmail.com",
+        "subject": "⚠️ Consulta sin clasificar - Requiere atención humana",
+        "message": "={{ $json.MensajeSupervisor }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        -96,
+        576
+      ],
+      "id": "d614be7c-428c-4fca-8a80-209abdc1e324",
+      "name": "Notificar Supervisor",
+      "webhookId": "supervisor-notif",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "BdHji6RqQH024JLW",
+          "name": "Gmail account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "1ZQc1xHSkJQSGVRpMloiH2FfoTPhAHsf0KZeZUPJyiUA",
+          "mode": "list",
+          "cachedResultName": "listado de precios Notebook",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1ZQc1xHSkJQSGVRpMloiH2FfoTPhAHsf0KZeZUPJyiUA/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 435513074,
+          "mode": "list",
+          "cachedResultName": "Log",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1ZQc1xHSkJQSGVRpMloiH2FfoTPhAHsf0KZeZUPJyiUA/edit#gid=435513074"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Fecha": "={{ $now.toISO() }}",
+            "Worker_Invocado": "={{ $json.data.categoria }}",
+            "Respuesta_Recibida": "={{ $json.data.mensaje }}",
+            "Status": "={{ $json.status }}",
+            "Parametros_Enviados": "=={{ JSON.stringify({ Cliente: $('Normalizar Datos').first().json.Cliente, Consulta: $('Normalizar Datos').first().json.Consulta, Mail: $('Normalizar Datos').first().json.Mail }) }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Fecha",
+              "displayName": "Fecha",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Worker_Invocado",
+              "displayName": "Worker_Invocado",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Parametros_Enviados",
+              "displayName": "Parametros_Enviados",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Respuesta_Recibida",
+              "displayName": "Respuesta_Recibida",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Status",
+              "displayName": "Status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        144,
+        128
+      ],
+      "id": "c7eea111-176e-4473-a798-0c179b7080ee",
+      "name": "Registrar Log",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "Ieiv7Jc4Z4mNARC8",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $('Normalizar Datos').first().json.Mail }}",
+        "subject": "=Tu recomendación, {{ $('Normalizar Datos').first().json.Cliente }} 🛍️",
+        "message": "=={{ $json.Respuesta_Recibida ? $json.Respuesta_Recibida.replace(/\\n/g, \"<br>\") : \"No se pudo generar una recomendación en este momento.\" }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        336,
+        128
+      ],
+      "id": "f973ded0-1607-4c23-8124-a42691c34724",
+      "name": "Enviar Recomendación al Cliente",
+      "webhookId": "cliente-notif",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "BdHji6RqQH024JLW",
+          "name": "Gmail account 2"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Normalizar Datos",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Normalizar Datos": {
+      "main": [
+        [
+          {
+            "node": "Clasificador de Intención",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Groq Chat Model Router": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Clasificador de Intención",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Clasificador de Intención": {
+      "main": [
+        [
+          {
+            "node": "Extraer Categoria",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extraer Categoria": {
+      "main": [
+        [
+          {
+            "node": "Enrutador",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Enrutador": {
+      "main": [
+        [
+          {
+            "node": "Preparar Datos Notebooks",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Preparar Datos Celulares",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Preparar Datos Relojes",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Preparar Escalamiento",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Preparar Datos Notebooks": {
+      "main": [
+        [
+          {
+            "node": "Worker Notebooks",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Preparar Datos Celulares": {
+      "main": [
+        [
+          {
+            "node": "Worker Celulares",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Preparar Datos Relojes": {
+      "main": [
+        [
+          {
+            "node": "Worker Relojes",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Preparar Escalamiento": {
+      "main": [
+        [
+          {
+            "node": "Notificar Supervisor",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Worker Notebooks": {
+      "main": [
+        [
+          {
+            "node": "Registrar Log",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Worker Celulares": {
+      "main": [
+        [
+          {
+            "node": "Registrar Log",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Worker Relojes": {
+      "main": [
+        [
+          {
+            "node": "Registrar Log",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Registrar Log": {
+      "main": [
+        [
+          {
+            "node": "Enviar Recomendación al Cliente",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "c36450f9-5faa-4794-b016-f7f17556eb9c",
+  "meta": {
+    "instanceId": "f99abffdc65bc769df3b6446f714c3f0980933b53710a48ccb1233c81e35f7eb"
+  },
+  "id": "JYO4ZsmldNA7CuxV",
+  "tags": [
+    {
+      "updatedAt": "2026-08-11T13:38:29.470Z",
+      "createdAt": "2026-08-11T13:38:29.470Z",
+      "id": "B9N26DYzj6Q3UfhN",
+      "name": "CursoIAavanzado"
+    }
+  ]
+}

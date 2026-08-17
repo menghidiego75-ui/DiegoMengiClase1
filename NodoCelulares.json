@@ -1,0 +1,196 @@
+{
+  "name": "NodoCelulares",
+  "nodes": [
+    {
+      "parameters": {
+        "workflowInputs": {
+          "values": [
+            {
+              "name": "Cliente"
+            },
+            {
+              "name": "Consulta"
+            },
+            {
+              "name": "Mail"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        768,
+        368
+      ],
+      "id": "a7f07d8c-c8db-4426-b545-fb7956178909",
+      "name": "Trigger"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.Consulta }}",
+        "options": {
+          "systemMessage": "[ROL Y PERSONALIDAD]\nActúa como un asesor comercial experto en telefonía móvil y tecnología. Tu trato debe ser sumamente amable, cálido, cercano, empático y profesional. Hablás con soltura y seguridad, generando confianza desde el primer saludo. Evitá rodeos técnicos innecesarios que abrumen al cliente, pero demostrá conocimiento profundo cuando se requiera explicar especificaciones (pantalla, cámaras, procesador, batería).\n\n[OBJETIVO PRINCIPAL]\nTu misión es guiar al cliente mediante un diagnóstico rápido de sus necesidades para recomendarle el celular con la configuración técnica ideal ajustándote exactamente a su uso (fotos/redes, trabajo/batería, o gaming/rendimiento).\n\n[MANEJO DE PRECIOS, FORMAS DE PAGO Y STOCK]\n- Precios y Pagos: Cuando el cliente consulte por precios, promociones o medios de pago, consulta el Google Sheets adjunto para brindar la información exacta y actualizada.\n- Promesas e Imprevistos: NUNCA prometas descuentos especiales fuera de lista ni entregas inmediatas. Antes de confirmar disponibilidad, aclara siempre de forma amable que primero debes verificar el stock disponible.\n\n[CLASIFICACIÓN DE PERFIL DE USO Y ESPECIFICACIONES RECOMENDADAS]\n• Uso Básico / Redes Sociales / Llamadas: Procesador Gama de entrada (Helio G-series / Snapdragon 680), 4GB a 6GB RAM, 128GB almacenamiento, pantalla LCD/OLED de 60-90Hz, batería de 5000 mAh.\n• Uso Intermedio / Fotografía / Trabajo Diario: Procesador Gama media (Snapdragon 7 Gen / Dimensity 7000+), 8GB RAM, 128GB-256GB almacenamiento, pantalla AMOLED de 90-120Hz, cámara con estabilización óptica (OIS).\n• Uso Avanzado / Gaming / Creadores de Contenido: Procesador Flagship/Gama Alta (Snapdragon 8 Gen series / Apple A-series / Dimensity 9000), 8GB-12GB+ RAM, 256GB-512GB almacenamiento, pantalla AMOLED 120Hz LTPO, sistema de cámaras pro (4K/8K, teleobjetivo) y carga ultrarrápida.\n\n[ESTRUCTURA DE RESPUESTA]\nSaludo y diagnóstico → Especificaciones recomendadas (en viñetas) → Por qué esta configuración es ideal para su caso → Precio y métodos de pago (obtenidos del Sheets) → Llamado a la acción (para confirmar stock o cerrar la compra).\n\n[RESTRICCIONES]\nNo uses jerga técnica sin explicarla (ej. explicar qué significa OIS o Hz si el cliente no es técnico). Nunca recomiendes celulares con menos de 64GB de almacenamiento interno ni menos de 4GB de RAM."
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        1008,
+        368
+      ],
+      "id": "e1c7876d-2dd5-48d0-93cf-834251094a75",
+      "name": "Agente Notebooks",
+      "retryOnFail": true,
+      "maxTries": 5,
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "model": "llama-3.3-70b-versatile",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGroq",
+      "typeVersion": 1,
+      "position": [
+        960,
+        576
+      ],
+      "id": "189e29b2-184e-4c73-ae78-1e1c1913105e",
+      "name": "Groq Chat Model",
+      "credentials": {
+        "groqApi": {
+          "id": "QKdE4NJJ5DQUtcW0",
+          "name": "Groq account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1ZQc1xHSkJQSGVRpMloiH2FfoTPhAHsf0KZeZUPJyiUA",
+          "mode": "list",
+          "cachedResultName": "listado de precios Notebook"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 661548771,
+          "mode": "list",
+          "cachedResultName": "Celulares",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1ZQc1xHSkJQSGVRpMloiH2FfoTPhAHsf0KZeZUPJyiUA/edit#gid=661548771"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheetsTool",
+      "typeVersion": 4.7,
+      "position": [
+        1168,
+        576
+      ],
+      "id": "46fa59d0-539d-45a9-ae0b-15ba06a78cda",
+      "name": "Catálogo Notebooks",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "Ieiv7Jc4Z4mNARC8",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "s1",
+              "name": "status",
+              "value": "={{ $json.error ? \"error\" : \"success\" }}",
+              "type": "string"
+            },
+            {
+              "id": "s2",
+              "name": "data",
+              "value": "={{ $json.error ? { \"mensaje\": \"No pudimos procesar tu consulta en este momento. Un asesor humano te contactará a la brevedad.\", \"categoria\": \"notebooks\" } : { \"categoria\": \"notebooks\", \"cliente\": $('Trigger').first().json.Cliente, \"mail\": $('Trigger').first().json.Mail, \"mensaje\": $json.output } }}",
+              "type": "object"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1344,
+        368
+      ],
+      "id": "97f6c253-f52b-4024-9da4-93c98bb47a00",
+      "name": "Formatear Contrato de Salida"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Trigger": {
+      "main": [
+        [
+          {
+            "node": "Agente Notebooks",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Groq Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Agente Notebooks",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Catálogo Notebooks": {
+      "ai_tool": [
+        [
+          {
+            "node": "Agente Notebooks",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Agente Notebooks": {
+      "main": [
+        [
+          {
+            "node": "Formatear Contrato de Salida",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "9b532a19-4b4b-4729-a4e8-612ed5dab15b",
+  "meta": {
+    "instanceId": "f99abffdc65bc769df3b6446f714c3f0980933b53710a48ccb1233c81e35f7eb"
+  },
+  "id": "fxvNwKfQdWRfDbUS",
+  "tags": [
+    {
+      "updatedAt": "2026-08-11T13:38:29.470Z",
+      "createdAt": "2026-08-11T13:38:29.470Z",
+      "id": "B9N26DYzj6Q3UfhN",
+      "name": "CursoIAavanzado"
+    }
+  ]
+}

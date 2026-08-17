@@ -1,0 +1,195 @@
+{
+  "name": "NodoNotebooks",
+  "nodes": [
+    {
+      "parameters": {
+        "workflowInputs": {
+          "values": [
+            {
+              "name": "Cliente"
+            },
+            {
+              "name": "Consulta"
+            },
+            {
+              "name": "Mail"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        -512,
+        -96
+      ],
+      "id": "0c9e6171-1949-4680-bd13-0f1abbd0116e",
+      "name": "Trigger"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.Consulta }}",
+        "options": {
+          "systemMessage": "[ROL Y PERSONALIDAD]\nActúa como un asesor comercial y vendedor experto en tecnología especializado en notebooks. Tu trato debe ser sumamente amable, cálido, cercano, empático y profesional. Hablas con soltura y seguridad, generando confianza desde el primer saludo. Evita rodeos técnicos innecesarios que abrumen al cliente, pero demuestra conocimiento profundo cuando se requiera explicar una especificación.\n\n[OBJETIVO PRINCIPAL]\nTu misión es guiar al cliente mediante un diagnóstico rápido de sus necesidades para recomendarle la notebook con la configuración técnica ideal (Procesador, Memoria RAM, Almacenamiento, Placa de Video y Pantalla), ajustándote exactamente a su uso.\n\n[MANEJO DE PRECIOS, FORMAS DE PAGO Y STOCK]\n- Precios y Pagos: Cuando el cliente consulte por precios, promociones o medios de pago, consulta la herramienta (Google Sheets / Tool adjunta) para brindar la información exacta y actualizada.\n- Promesas e Imprevistos: NUNCA prometas descuentos especiales fuera de lista ni entregas inmediatas. Antes de confirmar disponibilidad, aclara siempre de forma amable que primero debes verificar el stock disponible.\n\n[CLASIFICACIÓN DE PERFIL DE USO]\n• Familiar/Hogar/Estudiantil: i3 / N100 / Ryzen 3, 8-16GB RAM, 256-512GB SSD, pantalla 14-15.6\" FHD, gráficos integrados.\n• Oficina/Multitarea: i5 / Ryzen 5 / M2-M3, 16GB DDR5, 512GB-1TB SSD, pantalla IPS FHD/2.5K, buena batería.\n• Gamer/Edición/Diseño 3D: i7/i9 o Ryzen 7/9, GPU RTX dedicada, 16-32GB DDR5, 1TB SSD PCIe4.0, pantalla 144-240Hz.\n\n[ESTRUCTURA DE RESPUESTA]\nSaludo y diagnóstico → Especificaciones recomendadas (viñetas) → Por qué esta configuración → Precio/pago (del Sheets) → Llamado a la acción.\n\n[RESTRICCIONES]\nNo uses jerga sin explicarla. Nunca recomiendes HDD mecánico ni menos de 8GB RAM."
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        -304,
+        -96
+      ],
+      "id": "ba705bf8-8c02-479f-9203-7a3c234c7fb4",
+      "name": "Agente Notebooks",
+      "retryOnFail": true,
+      "maxTries": 5,
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "model": "llama-3.3-70b-versatile",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGroq",
+      "typeVersion": 1,
+      "position": [
+        -336,
+        112
+      ],
+      "id": "98a82665-e30b-4a11-b34a-cd696ea0bb0e",
+      "name": "Groq Chat Model",
+      "credentials": {
+        "groqApi": {
+          "id": "QKdE4NJJ5DQUtcW0",
+          "name": "Groq account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1ZQc1xHSkJQSGVRpMloiH2FfoTPhAHsf0KZeZUPJyiUA",
+          "mode": "list",
+          "cachedResultName": "listado de precios Notebook"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Hoja 1"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheetsTool",
+      "typeVersion": 4.7,
+      "position": [
+        -112,
+        112
+      ],
+      "id": "c90acd76-8653-4e15-866e-ac9ee8866b98",
+      "name": "Catálogo Notebooks",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "Ieiv7Jc4Z4mNARC8",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "s1",
+              "name": "status",
+              "value": "={{ $json.error ? \"error\" : \"success\" }}",
+              "type": "string"
+            },
+            {
+              "id": "s2",
+              "name": "data",
+              "value": "={{ $json.error ? { \"mensaje\": \"No pudimos procesar tu consulta en este momento. Un asesor humano te contactará a la brevedad.\", \"categoria\": \"notebooks\" } : { \"categoria\": \"notebooks\", \"cliente\": $('Trigger').first().json.Cliente, \"mail\": $('Trigger').first().json.Mail, \"mensaje\": $json.output } }}",
+              "type": "object"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -32,
+        -96
+      ],
+      "id": "25042ff6-5056-488d-a256-d7271dbe1482",
+      "name": "Formatear Contrato de Salida"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Trigger": {
+      "main": [
+        [
+          {
+            "node": "Agente Notebooks",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Groq Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Agente Notebooks",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Catálogo Notebooks": {
+      "ai_tool": [
+        [
+          {
+            "node": "Agente Notebooks",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Agente Notebooks": {
+      "main": [
+        [
+          {
+            "node": "Formatear Contrato de Salida",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "159009d4-33a3-471c-b0ce-9f3518d3506c",
+  "meta": {
+    "instanceId": "f99abffdc65bc769df3b6446f714c3f0980933b53710a48ccb1233c81e35f7eb"
+  },
+  "id": "spUay31ZyjrNchrA",
+  "tags": [
+    {
+      "updatedAt": "2026-08-11T13:38:29.470Z",
+      "createdAt": "2026-08-11T13:38:29.470Z",
+      "id": "B9N26DYzj6Q3UfhN",
+      "name": "CursoIAavanzado"
+    }
+  ]
+}
