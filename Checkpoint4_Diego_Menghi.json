@@ -1,0 +1,1025 @@
+{
+  "name": "Triage RRHH Constructora - Gmail HITL",
+  "nodes": [
+    {
+      "parameters": {
+        "pollTimes": {
+          "item": [
+            {
+              "mode": "everyMinute"
+            }
+          ]
+        },
+        "filters": {
+          "labelIds": [
+            "INBOX"
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.gmailTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        -1552,
+        336
+      ],
+      "id": "c5381e9c-a981-45fe-98a4-0bf5be8f7f61",
+      "name": "Trigger - Nueva Postulación",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "BdHji6RqQH024JLW",
+          "name": "Gmail account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "b1000000-0000-0000-0000-000000000001",
+              "leftValue": "={{ $json.From }}",
+              "rightValue": "mailer-daemon",
+              "operator": {
+                "type": "string",
+                "operation": "contains"
+              }
+            },
+            {
+              "id": "b1000000-0000-0000-0000-000000000002",
+              "leftValue": "={{ $json.From }}",
+              "rightValue": "no-reply",
+              "operator": {
+                "type": "string",
+                "operation": "contains"
+              }
+            },
+            {
+              "id": "b1000000-0000-0000-0000-000000000003",
+              "leftValue": "={{ $json.From }}",
+              "rightValue": "noreply",
+              "operator": {
+                "type": "string",
+                "operation": "contains"
+              }
+            },
+            {
+              "id": "b1000000-0000-0000-0000-000000000004",
+              "leftValue": "={{ $json.Subject }}",
+              "rightValue": "respuesta automática",
+              "operator": {
+                "type": "string",
+                "operation": "contains"
+              }
+            },
+            {
+              "id": "b1000000-0000-0000-0000-000000000005",
+              "leftValue": "={{ $json.Subject }}",
+              "rightValue": "out of office",
+              "operator": {
+                "type": "string",
+                "operation": "contains"
+              }
+            },
+            {
+              "id": "b1000000-0000-0000-0000-000000000006",
+              "leftValue": "={{ $json.Subject }}",
+              "rightValue": "automatic reply",
+              "operator": {
+                "type": "string",
+                "operation": "contains"
+              }
+            }
+          ],
+          "combinator": "or"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        -1328,
+        336
+      ],
+      "id": "7bd2f7e8-2371-4186-a3c0-0c6c21f9ca0a",
+      "name": "① IF - Anti Auto-Reply"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [
+        -1040,
+        176
+      ],
+      "id": "757ac438-3610-4b7d-875e-addd9cbca271",
+      "name": "Fin - Auto-Reply Descartado"
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "10fWNKd1LUKY-h1WWDLeGriyz5sE5LzJfo55yXYkaQt8",
+          "mode": "list",
+          "cachedResultName": "② Lookup - Buscar Duplicado",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/10fWNKd1LUKY-h1WWDLeGriyz5sE5LzJfo55yXYkaQt8/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Hoja 1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/10fWNKd1LUKY-h1WWDLeGriyz5sE5LzJfo55yXYkaQt8/edit#gid=0"
+        },
+        "filtersUI": {
+          "values": [
+            {
+              "lookupColumn": "Message_ID",
+              "lookupValue": "={{ $json.message_id }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        -672,
+        368
+      ],
+      "id": "fc8837a3-5252-4cf4-8aad-e6121c82ca88",
+      "name": "② Lookup - Buscar Duplicado",
+      "alwaysOutputData": true,
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "Ieiv7Jc4Z4mNARC8",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "d1000000-0000-0000-0000-000000000001",
+              "leftValue": "={{ $('④ Set - Limpieza de Payload1').item.json.message_id }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        -544,
+        192
+      ],
+      "id": "b2279f39-0cee-4673-aef0-96b1f46e64dd",
+      "name": "IF - ¿Ya Registrado?"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [
+        -304,
+        160
+      ],
+      "id": "953b8d9c-a900-4151-ac5f-14cbec5a9250",
+      "name": "Fin - Duplicado Descartado"
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "e1000000-0000-0000-0000-000000000001",
+                    "leftValue": "={{ $('④ Set - Limpieza de Payload1').item.json.categoria }}",
+                    "rightValue": "OBRERO",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "e1000000-0000-0000-0000-000000000002",
+                    "leftValue": "={{ $('④ Set - Limpieza de Payload1').item.json.categoria }}",
+                    "rightValue": "ADMINISTRATIVO",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "e1000000-0000-0000-0000-000000000003",
+                    "leftValue": "={{ $('④ Set - Limpieza de Payload1').item.json.categoria }}",
+                    "rightValue": "PROFESIONAL",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            }
+          ]
+        },
+        "options": {
+          "fallbackOutput": "extra"
+        }
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.4,
+      "position": [
+        -416,
+        368
+      ],
+      "id": "dba03575-53bd-4eb2-8307-92c457f74a0f",
+      "name": "Switch - Categoría"
+    },
+    {
+      "parameters": {
+        "resource": "draft",
+        "subject": "=Nueva Postulación (Obrero) - {{ $('④ Set - Limpieza de Payload1').item.json.nombre_candidato }}",
+        "message": "=<p>Llegó una nueva postulación para <b>obreros</b> (oficial/ayudante):</p>\n<p><b>Nombre:</b> {{ $('④ Set - Limpieza de Payload1').item.json.nombre_candidato }}<br>\n<b>Email:</b> {{ $('④ Set - Limpieza de Payload1').item.json.email_candidato }}<br>\n<b>Asunto original:</b> {{ $('④ Set - Limpieza de Payload1').item.json.asunto }}</p>\n<p>Este es un <b>borrador</b>: revisalo y enviálo manualmente desde Gmail.</p>",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        -144,
+        256
+      ],
+      "id": "526e0bb5-095b-4a1b-9ad0-373a843ec7f5",
+      "name": "③ Draft - Jefe de Obra",
+      "webhookId": "d5f3c923-5843-4698-9e6b-7adcda5d1e4f",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "BdHji6RqQH024JLW",
+          "name": "Gmail account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "draft",
+        "subject": "=Nueva Postulación (Administrativo/Higiene y Seguridad) - {{ $('④ Set - Limpieza de Payload1').item.json.nombre_candidato }}",
+        "message": "=<p>Llegó una nueva postulación <b>administrativa / higiene y seguridad</b>:</p>\n<p><b>Nombre:</b> {{ $('④ Set - Limpieza de Payload1').item.json.nombre_candidato }}<br>\n<b>Email:</b> {{ $('④ Set - Limpieza de Payload1').item.json.email_candidato }}<br>\n<b>Asunto original:</b> {{ $('④ Set - Limpieza de Payload1').item.json.asunto }}</p>\n<p>Este es un <b>borrador</b>: revisalo y enviálo manualmente desde Gmail.</p>",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        -144,
+        416
+      ],
+      "id": "05747831-36cb-4ff3-bd64-6a6b0213d893",
+      "name": "③ Draft - Jefe de RRHH",
+      "webhookId": "2192c414-f4c8-4bfd-8071-c2c9dbf49d6a",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "BdHji6RqQH024JLW",
+          "name": "Gmail account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $('④ Set - Limpieza de Payload1').item.json.casilla_destino }}",
+        "subject": "=Postulación Profesional - {{ $('④ Set - Limpieza de Payload1').item.json.nombre_candidato }} - Decisión requerida",
+        "message": "=<div style=\"font-family:Arial,sans-serif;max-width:600px;margin:0 auto\"><div style=\"background:#2c3e50;padding:16px;border-radius:8px 8px 0 0\"><h2 style=\"color:white;margin:0\">Nueva Postulación - Ingeniero/Arquitecto</h2></div><div style=\"background:#f9f9f9;padding:24px;border:1px solid #ddd;border-top:none;border-radius:0 0 8px 8px\"><p><b>Nombre:</b> {{ $('④ Set - Limpieza de Payload1').item.json.nombre_candidato }}<br><b>Email:</b> {{ $('④ Set - Limpieza de Payload1').item.json.email_candidato }}<br><b>Asunto original:</b> {{ $('④ Set - Limpieza de Payload1').item.json.asunto }}</p><p>¿Se cita a entrevista?</p><a href=\"{{ $execution.resumeUrl + '?decision=approve' }}\" style=\"display:inline-block;background:#27ae60;color:white;padding:14px 28px;text-decoration:none;border-radius:6px;font-weight:bold;margin-right:12px\">✅ ENTREVISTAR</a><a href=\"{{ $execution.resumeUrl + '?decision=reject' }}\" style=\"display:inline-block;background:#e74c3c;color:white;padding:14px 28px;text-decoration:none;border-radius:6px;font-weight:bold\">❌ NO ENTREVISTAR</a><p style=\"margin:24px 0 0;color:#888;font-size:12px\">⚠️ Si no respondés en 1 hora, esta postulación se escala automáticamente al Subgerente.</p></div></div>",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        -144,
+        592
+      ],
+      "id": "0cc6c068-3821-4d47-9f0d-4a911fa22490",
+      "name": "Enviar - Gerente (Botones)",
+      "webhookId": "539537f0-2495-4d7f-a4cc-abc8887e583f",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "BdHji6RqQH024JLW",
+          "name": "Gmail account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resume": "webhook",
+        "limitWaitTime": true,
+        "resumeAmount": 3,
+        "resumeUnit": "minutes",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        16,
+        592
+      ],
+      "id": "e71383ad-b077-47e9-aa19-72cb7c4c5624",
+      "name": "Wait - Respuesta Gerente (1h)",
+      "webhookId": "b6c6f289-6b03-4ae6-abf3-87909c2dd9e0"
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "g1000000-0000-0000-0000-000000000001",
+                    "leftValue": "={{ $json.query.decision }}",
+                    "rightValue": "approve",
+                    "operator": {
+                      "type": "string",
+                      "operation": "contains"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "g1000000-0000-0000-0000-000000000002",
+                    "leftValue": "={{ $json.query.decision }}",
+                    "rightValue": "reject",
+                    "operator": {
+                      "type": "string",
+                      "operation": "contains"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            }
+          ]
+        },
+        "options": {
+          "fallbackOutput": "extra"
+        }
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.4,
+      "position": [
+        208,
+        576
+      ],
+      "id": "f8e78b81-a5c1-4f83-9288-c96925fe3e9a",
+      "name": "Switch1 - Decisión Gerente"
+    },
+    {
+      "parameters": {
+        "sendTo": "subgerente@constructora.com",
+        "subject": "=[ESCALADO] Postulación sin respuesta del Gerente - {{ $json.nombre_candidato }}",
+        "message": "=<p>El Gerente no respondió en 1 hora a la siguiente postulación:</p><p><b>Nombre:</b> {{ $json.nombre_candidato }}<br><b>Email:</b> {{ $json.email_candidato }}<br><b>Asunto original:</b> {{ $json.asunto }}</p><p>Por favor, tomá la decisión de entrevistar o no.</p>",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        352,
+        768
+      ],
+      "id": "1aaba04e-0fbc-468d-808a-f839824bd4d7",
+      "name": "Escalar - Subgerente",
+      "webhookId": "fe2bcd82-4efc-4fa3-9352-86a87855b10c",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "BdHji6RqQH024JLW",
+          "name": "Gmail account 2"
+        }
+      }
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [
+        -416,
+        656
+      ],
+      "id": "d8383d7c-9cc5-4ac5-ba19-fb30a70aa9f2",
+      "name": "Revisión Manual (Sin Clasificar)"
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "10fWNKd1LUKY-h1WWDLeGriyz5sE5LzJfo55yXYkaQt8",
+          "mode": "list",
+          "cachedResultName": "② Lookup - Buscar Duplicado",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/10fWNKd1LUKY-h1WWDLeGriyz5sE5LzJfo55yXYkaQt8/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Hoja 1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/10fWNKd1LUKY-h1WWDLeGriyz5sE5LzJfo55yXYkaQt8/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Fecha": "={{ $('④ Set - Limpieza de Payload1').item.json.fecha_recepcion }}",
+            "Nombre_Candidato": "={{ $('④ Set - Limpieza de Payload1').item.json.nombre_candidato }}",
+            "Email_Candidato": "={{ $('④ Set - Limpieza de Payload1').item.json.email_candidato }}",
+            "Categoria": "={{ $('④ Set - Limpieza de Payload1').item.json.categoria }}",
+            "Casilla_Destino": "={{ $('④ Set - Limpieza de Payload1').item.json.casilla_destino }}",
+            "Message_ID": "={{ $('④ Set - Limpieza de Payload1').item.json.message_id }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Fecha",
+              "displayName": "Fecha",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Nombre_Candidato",
+              "displayName": "Nombre_Candidato",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Email_Candidato",
+              "displayName": "Email_Candidato",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Categoria",
+              "displayName": "Categoria",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Casilla_Destino",
+              "displayName": "Casilla_Destino",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Estado",
+              "displayName": "Estado",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Message_ID",
+              "displayName": "Message_ID",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        608,
+        256
+      ],
+      "id": "39c46b29-ff30-4033-9c69-1a9cd7e72fa0",
+      "name": "Registrar en Sheet",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "Ieiv7Jc4Z4mNARC8",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "mode": "raw",
+        "jsonOutput": "={\n  \"categoria\": \"{{ $json.output.categoria || 'SIN_CLASIFICAR' }}\",\n  \"nombre_candidato\": \"{{ $json.output.nombre_candidato || 'Sin nombre' }}\",\n  \"email_candidato\": \"{{ $('Trigger - Nueva Postulación').item.json.From.match(/<(.+)>/) ? $('Trigger - Nueva Postulación').item.json.From.match(/<(.+)>/)[1] : ($('Trigger - Nueva Postulación').item.json.From || '') }}\",\n  \"asunto\": \"{{ $('Trigger - Nueva Postulación').item.json.Subject || 'Sin asunto' }}\",\n  \"casilla_destino\": \"{{ $json.output.categoria === 'OBRERO' ? 'jefeobra@constructora.com' : $json.output.categoria === 'PROFESIONAL' ? 'importaciones.matic@gmail.com' : 'rrhh@constructora.com' }}\",\n  \"message_id\": \"{{ $('Trigger - Nueva Postulación').item.json.id || '' }}\",\n  \"fecha_recepcion\": \"{{ $now.toISO() }}\"\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -800,
+        592
+      ],
+      "id": "c39ea170-4eb3-4973-984b-befe46f60038",
+      "name": "④ Set - Limpieza de Payload1"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Asunto: {{ $json.Subject }}\nRemitente: {{ $json.From }}\nCuerpo: {{ $json.text || $json.snippet }}",
+        "hasOutputParser": true,
+        "messages": {
+          "messageValues": [
+            {
+              "message": "=Analizá el siguiente mail de postulación laboral y clasificalo.\n\nAsunto: {{ $json.subject }}\nRemitente: {{ $json.from }}\nCuerpo: {{ $json.text || $json.snippet }}\n\nCategorías posibles: OBRERO (oficial/ayudante/albañil), ADMINISTRATIVO (administrativo/higiene y seguridad), PROFESIONAL (ingeniero/arquitecto), SIN_CLASIFICAR (si no está claro).\n\nIMPORTANTE - Cómo extraer nombre y email:\nEl campo \"Remitente\" tiene el formato: Nombre Apellido <email@dominio.com>\nEjemplo: si Remitente es \"DIEGO MENGHI <menghidiego75@gmail.com>\", entonces:\n- nombre_candidato = \"Diego Menghi\"\n- email_candidato = \"menghidiego75@gmail.com\"\n\nExtraé SIEMPRE el email de dentro de los símbolos < >. Nunca lo dejes vacío si el Remitente tiene ese formato.\n\nSi detectás que es una respuesta automática (out of office, mailer-daemon, no-reply), marcá es_auto_reply en true."
+            }
+          ]
+        },
+        "batching": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.9,
+      "position": [
+        -1104,
+        480
+      ],
+      "id": "ddf41d4c-21cc-4dd1-a5f1-a33bacbbea2d",
+      "name": "Basic LLM Chain",
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "jsonSchemaExample": "{\n  \"es_auto_reply\": false,\n  \"categoria\": \"OBRERO\",\n  \"nombre_candidato\": \"Juan Pérez\",\n  \"email_candidato\": \"juan.perez@gmail.com\"\n}"
+      },
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "typeVersion": 1.3,
+      "position": [
+        -976,
+        704
+      ],
+      "id": "0a73f4b1-47e2-4893-8477-b862c93b78fa",
+      "name": "Structured Output Parser1"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "0f662da4-1289-4d6a-bfcd-e8b8763de79b",
+              "name": "estado",
+              "value": "Borrador enviado a Jefe de Obra - Pendiente de revisión",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        16,
+        256
+      ],
+      "id": "ebfe926e-74f1-459b-994f-55f7f5f9782e",
+      "name": "Edit Fields1"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        16,
+        416
+      ],
+      "id": "7de9c88d-6bd2-416b-ae57-d0a02aa2e9f5",
+      "name": "Edit Fields2"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        368,
+        464
+      ],
+      "id": "87ae6d9d-a4f6-413f-871d-882555805a43",
+      "name": "Set Aproado"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        384,
+        624
+      ],
+      "id": "03830873-44ef-4659-b13d-c55646081993",
+      "name": "Set rechazado"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        512,
+        768
+      ],
+      "id": "95766844-41c1-49cb-b881-32d565d2e0b1",
+      "name": "Set escalado"
+    },
+    {
+      "parameters": {
+        "model": "deepseek-v4-flash",
+        "options": {
+          "maxTokens": 800
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatDeepSeek",
+      "typeVersion": 1,
+      "position": [
+        -1104,
+        704
+      ],
+      "id": "83734460-2629-4a54-8539-dd09606dc6a6",
+      "name": "DeepSeek Chat Model",
+      "credentials": {
+        "deepSeekApi": {
+          "id": "4qLzL3mmRtCJiGfh",
+          "name": "DeepSeek account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Trigger - Nueva Postulación": {
+      "main": [
+        [
+          {
+            "node": "① IF - Anti Auto-Reply",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "① IF - Anti Auto-Reply": {
+      "main": [
+        [
+          {
+            "node": "Fin - Auto-Reply Descartado",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Basic LLM Chain",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "② Lookup - Buscar Duplicado": {
+      "main": [
+        [
+          {
+            "node": "IF - ¿Ya Registrado?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IF - ¿Ya Registrado?": {
+      "main": [
+        [
+          {
+            "node": "Fin - Duplicado Descartado",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Switch - Categoría",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Switch - Categoría": {
+      "main": [
+        [
+          {
+            "node": "③ Draft - Jefe de Obra",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "③ Draft - Jefe de RRHH",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Enviar - Gerente (Botones)",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Revisión Manual (Sin Clasificar)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Enviar - Gerente (Botones)": {
+      "main": [
+        [
+          {
+            "node": "Wait - Respuesta Gerente (1h)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait - Respuesta Gerente (1h)": {
+      "main": [
+        [
+          {
+            "node": "Switch1 - Decisión Gerente",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Switch1 - Decisión Gerente": {
+      "main": [
+        [
+          {
+            "node": "Set Aproado",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Set rechazado",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Escalar - Subgerente",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Structured Output Parser1": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "Basic LLM Chain",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Basic LLM Chain": {
+      "main": [
+        [
+          {
+            "node": "④ Set - Limpieza de Payload1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "④ Set - Limpieza de Payload1": {
+      "main": [
+        [
+          {
+            "node": "② Lookup - Buscar Duplicado",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "③ Draft - Jefe de Obra": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "③ Draft - Jefe de RRHH": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Escalar - Subgerente": {
+      "main": [
+        [
+          {
+            "node": "Set escalado",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "DeepSeek Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Basic LLM Chain",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields1": {
+      "main": [
+        [
+          {
+            "node": "Registrar en Sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set Aproado": {
+      "main": [
+        [
+          {
+            "node": "Registrar en Sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set rechazado": {
+      "main": [
+        [
+          {
+            "node": "Registrar en Sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set escalado": {
+      "main": [
+        [
+          {
+            "node": "Registrar en Sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields2": {
+      "main": [
+        [
+          {
+            "node": "Registrar en Sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "85be494d-4eda-4d94-9158-f2f3232374c0",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "f99abffdc65bc769df3b6446f714c3f0980933b53710a48ccb1233c81e35f7eb"
+  },
+  "id": "rVcc3CVTeT757waX",
+  "tags": []
+}
